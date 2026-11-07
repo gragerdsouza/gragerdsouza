@@ -22,7 +22,7 @@ setup: ## First run: build images, install deps, create .env, migrate + seed
 	$(RUN) npm install
 	$(DC) up -d pgsql redis
 	$(DC) run --rm app php artisan migrate --seed --force
-	$(RUN) php artisan storage:link
+	$(RUN) php artisan storage:link --relative
 
 up: ## Start the stack (app :8000, vite :5173, mailpit :8025)
 	$(DC) up -d

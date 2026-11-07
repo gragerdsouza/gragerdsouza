@@ -44,6 +44,8 @@ x-app: &app
 services:
   app:
     <<: *app
+    # Ensure public/storage → storage/app/public exists (uploaded avatars), then serve.
+    command: ["sh", "-c", "php artisan storage:link --relative --quiet 2>/dev/null; exec php artisan serve --host=0.0.0.0 --port=8000"]
     ports:
       - "${APP_PORT:-8000}:8000"
     healthcheck:
