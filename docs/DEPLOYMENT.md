@@ -52,11 +52,24 @@ Two supported targets:
    | `MAIL_*` | your SMTP provider, or attach Resend in Cloud |
 
 8. **Queue worker**: enable a worker (or managed queue) so `NewContactMessage` emails are sent.
-9. **Deploy from GitHub Actions, not on push**
+9. **Deploy from GitHub Actions, not on push.** Deploys are **off by default**; see *Turning deploys on and off* below.
    - Cloud → Environment → *Deployments*: **disable Push to deploy** and copy the **Deploy hook URL**.
    - GitHub → *Settings → Secrets and variables → Actions* → **New secret**
      `LARAVEL_CLOUD_DEPLOY_HOOK` = the hook URL.
    - Optional: GitHub → *Settings → Environments → production* → add yourself as a required reviewer for manual approval.
+
+### Turning deploys on and off
+
+Automatic deploys are controlled by one GitHub **repository variable**, so you never need a code change:
+
+| | How |
+|---|---|
+| **Enable** | GitHub repo → *Settings → Secrets and variables → Actions* → **Variables** tab → *New repository variable* → name `LARAVEL_CLOUD_DEPLOY_ENABLED`, value `true` |
+| **Pause** | Edit that variable to `false`, or delete it |
+| **Check** | *Actions → Deploy*: while paused, the "Laravel Cloud" job shows as **skipped** (grey), not failed |
+
+You still need the `LARAVEL_CLOUD_DEPLOY_HOOK` **secret** (step 9) before enabling, otherwise the job fails with a clear error.
+CI (tests, lint, Docker image) runs as normal either way.
 
 ### How a release flows
 

@@ -1,12 +1,20 @@
 name: Deploy
 
 # Deploys to Laravel Cloud only after CI has passed on main.
-# Setup (one-time):
+#
+# ON/OFF SWITCH: deploys are DISABLED until the repository variable
+#   LARAVEL_CLOUD_DEPLOY_ENABLED = true
+# is set (GitHub → Settings → Secrets and variables → Actions → Variables tab).
+# While disabled, this job shows as "skipped" — CI is unaffected.
+#
+# Setup (one-time, when you are ready):
 #   1. Laravel Cloud → your environment → Settings → Deployments: turn OFF "Push to deploy"
 #      and copy the Deploy hook URL.
 #   2. GitHub → Settings → Secrets and variables → Actions → new secret
 #      LARAVEL_CLOUD_DEPLOY_HOOK = <that URL>.
-#   3. (Optional) GitHub → Settings → Environments → "production": add required reviewers.
+#   3. GitHub → Settings → Secrets and variables → Actions → Variables tab → new variable
+#      LARAVEL_CLOUD_DEPLOY_ENABLED = true.  (Set it to false, or delete it, to pause deploys.)
+#   4. (Optional) GitHub → Settings → Environments → "production": add required reviewers.
 
 on:
   workflow_run:
@@ -27,8 +35,10 @@ jobs:
     name: Laravel Cloud
     runs-on: ubuntu-latest
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+      vars.LARAVEL_CLOUD_DEPLOY_ENABLED == 'true' && (
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+      )
     environment:
       name: production
     steps:

@@ -143,8 +143,11 @@ Thin final controllers, single-purpose actions, and models that know nothing abo
 | Workflow | Trigger | Does |
 |---|---|---|
 | `ci.yml` | push, PR | Pint · Rector · Larastan · `composer audit` → Pest on PHP 8.5 (SQLite, with 100% coverage gate) and PostgreSQL, plus PHP 8.6 (experimental) → `npm ci && build && audit` → Docker `prod` build (pushed to GHCR on `main`) |
-| `deploy.yml` | CI green on `main`, or manual | POSTs the Laravel Cloud deploy hook |
+| `deploy.yml` | CI green on `main`, or manual. **Off until** repo variable `LARAVEL_CLOUD_DEPLOY_ENABLED=true` | POSTs the Laravel Cloud deploy hook |
 | Dependabot | weekly | Composer, npm, Actions, Docker base images |
+
+**Deploys are paused by default.** Turn them on with the repository variable `LARAVEL_CLOUD_DEPLOY_ENABLED` = `true`
+(*Settings → Secrets and variables → Actions → Variables*); set it to `false` to pause again.
 
 **Laravel Cloud setup in short:** create the app, attach Postgres + Redis + a public `public` bucket, set
 build `composer install --no-dev && npm ci && npm run build && php artisan optimize && php artisan filament:optimize`,
