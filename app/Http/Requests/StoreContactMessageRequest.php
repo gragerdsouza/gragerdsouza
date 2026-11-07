@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 /**
  * Validates contact-form input, including the honeypot field.
@@ -25,9 +26,20 @@ final class StoreContactMessageRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255'],
             'subject' => ['nullable', 'string', 'max:160'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
-            // Honeypot: hidden from humans, bots tend to fill it.
-            'website' => ['missing'],
+            // Honeypot: browsers submit it empty (→ null); bots tend to fill it.
+            'website' => ['prohibited'],
         ];
+    }
+
+    /**
+     * Where to send the visitor when validation fails: back to the form, not the top of the page.
+     *
+     * @return string The home page URL anchored at the contact section.
+     */
+    #[Override]
+    protected function getRedirectUrl(): string
+    {
+        return route('home').'#contact';
     }
 
     /**

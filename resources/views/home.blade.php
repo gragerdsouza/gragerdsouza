@@ -24,7 +24,7 @@
     </section>
 
     {{-- About --}}
-    <section id="about" class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <section id="about" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
         <x-section-heading eyebrow="01 · About" title="Developer across the stack" />
         <div class="grid gap-10 md:grid-cols-[1fr_auto]">
             <div class="max-w-2xl space-y-4 text-base leading-relaxed text-ink-300">
@@ -38,7 +38,7 @@
 
     {{-- Stack --}}
     @if ($skills->isNotEmpty())
-        <section id="stack" class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <section id="stack" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <x-section-heading eyebrow="02 · Stack" title="Tools I ship with" />
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($skills as $category => $group)
@@ -57,7 +57,7 @@
 
     {{-- Experience --}}
     @if ($experiences->isNotEmpty())
-        <section id="experience" class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <section id="experience" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <x-section-heading eyebrow="03 · Experience" title="Where I've worked" />
             <ol class="relative space-y-10 border-l border-white/10 pl-6">
                 @foreach ($experiences as $experience)
@@ -74,7 +74,7 @@
 
     {{-- Featured projects --}}
     @if ($projects->isNotEmpty())
-        <section id="projects" class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <section id="projects" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
             <x-section-heading eyebrow="04 · Work" title="Featured projects" />
             <div class="grid gap-6 md:grid-cols-2">
                 @foreach ($projects as $project)
@@ -86,7 +86,7 @@
     @endif
 
     {{-- Contact --}}
-    <section id="contact" class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <section id="contact" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
         <x-section-heading eyebrow="05 · Contact" title="Let's build something" />
         <div class="grid gap-10 md:grid-cols-[1fr_1.4fr]">
             <div class="space-y-3 text-ink-300">

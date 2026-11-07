@@ -55,6 +55,21 @@ it('stores the message and notifies the owner', function (): void {
     );
 });
 
+it('accepts a real browser submission that includes the empty honeypot field', function (): void {
+    $this->post(route('contact.store'), validContact(['website' => '']))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('home').'#contact');
+
+    expect(ContactMessage::query()->count())->toBe(1);
+});
+
+it('sends the visitor back to the form section when validation fails', function (): void {
+    $this->from(route('home'))
+        ->post(route('contact.store'), validContact(['email' => 'nope']))
+        ->assertRedirect(route('home').'#contact')
+        ->assertSessionHasErrors('email');
+});
+
 it('shows the success message after redirect', function (): void {
     $this->followingRedirects()
         ->post(route('contact.store'), validContact())
@@ -70,7 +85,7 @@ it('accepts a message without a subject', function (): void {
 it('validates input', function (array $input, string $field): void {
     $this->from(route('home'))
         ->post(route('contact.store'), validContact($input))
-        ->assertRedirect(route('home'))
+        ->assertRedirect(route('home').'#contact')
         ->assertSessionHasErrors($field);
 
     expect(ContactMessage::query()->count())->toBe(0);
