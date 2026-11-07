@@ -54,6 +54,7 @@ make help      # every shortcut
 make shell     # bash inside the app container
 make logs      # app + queue logs
 make fresh     # rebuild the database with seed data
+make storage-link  # (re)create public/storage symlink for uploaded images
 make down      # stop
 ```
 
@@ -68,6 +69,36 @@ composer dev                         # app server + queue + vite
 
 On macOS without Homebrew's toolchain: `/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"`.
 </details>
+
+---
+
+## Troubleshooting
+
+### Uploaded images (avatar) return **403 Forbidden** or don't show
+
+Uploads are stored in `storage/app/public` and served through the symlink `public/storage`.
+If the link is missing, `/storage/...` falls through to Laravel's signed private-file route and returns 403.
+
+```bash
+make storage-link                                               # Docker (recommended)
+docker compose exec app php artisan storage:link --relative     # same thing, by hand
+php artisan storage:link --relative                             # without Docker
+```
+
+Check it with `ls -l public/storage`. It should show `public/storage -> ../storage/app/public/`.
+The `app` container also creates the link on every start, and the production image does it in `docker/entrypoint.sh`.
+`--relative` makes the link work both on your machine and inside the container.
+
+On **Laravel Cloud** the disk is ephemeral, so don't use the symlink there: attach a **public** Object Storage bucket named `public`
+(see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+
+### `http://localhost:8000` doesn't load
+
+Give the stack a few seconds after `make up`, then check `docker compose ps` (the `app` service should be *healthy*) and `make logs`.
+
+### Contact-form emails don't arrive
+
+They are queued. Make sure the `queue` service is running (`docker compose ps`), then open Mailpit at http://localhost:8025.
 
 ---
 

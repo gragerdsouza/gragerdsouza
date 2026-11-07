@@ -9,7 +9,7 @@ DC  := docker compose
 RUN := $(DC) run --rm --no-deps -e CLAUDECODE -e AI_AGENT app
 EXEC := $(DC) exec -e CLAUDECODE -e AI_AGENT app
 
-.PHONY: help setup up down restart logs shell fresh test coverage lint lint-fix analyse rector rector-fix ci build-prod
+.PHONY: help setup up down restart logs shell fresh storage-link test coverage lint lint-fix analyse rector rector-fix ci build-prod
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -41,6 +41,10 @@ shell: ## Shell inside the app container
 
 fresh: ## Drop and re-seed the database
 	$(EXEC) php artisan migrate:fresh --seed
+
+storage-link: ## Link public/storage → storage/app/public (fixes 403 on uploaded images)
+	$(RUN) php artisan storage:link --relative --force
+	@ls -l public/storage
 
 test: ## Run the Pest suite (arch + unit + feature)
 	$(RUN) composer test
