@@ -102,3 +102,16 @@ it('never overwrites projects edited in the admin when re-seeded', function (): 
     expect(Project::query()->count())->toBe(5)
         ->and(Project::query()->where('slug', 'whatsapp-hub')->sole()->title)->toBe('Edited in admin');
 });
+
+it('seeds the real profile, experience and skills', function (): void {
+    $this->seed(PortfolioSeeder::class);
+
+    $profile = Profile::current();
+    expect($profile->exists)->toBeTrue()
+        ->and($profile->bio)->toContain('senior full-stack developer', 'Apple Wallet and Google Wallet')
+        ->and($profile->social_links)->toHaveKeys(['github', 'linkedin'])
+        ->and(Experience::query()->sole()->company)->toBe('Minster Software Limited')
+        ->and(Experience::query()->sole()->isCurrent())->toBeTrue()
+        ->and(Skill::query()->where('name', 'Bitbucket')->sole()->category->value)->toBe('devops')
+        ->and(Experience::query()->where('summary', 'like', 'Replace this%')->exists())->toBeFalse();
+});
