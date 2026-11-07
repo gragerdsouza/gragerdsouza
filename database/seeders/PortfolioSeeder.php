@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use App\Enums\SkillCategory;
 use App\Models\Experience;
 use App\Models\Profile;
-use App\Models\Project;
 use App\Models\Skill;
 use Illuminate\Database\Seeder;
 
@@ -64,17 +63,6 @@ class PortfolioSeeder extends Seeder
             'started_at' => '2022-01-01',
             'ended_at' => null,
             'summary' => 'Replace this with what you do — products shipped, pipelines built, teams helped.',
-        ]);
-
-        Project::query()->create([
-            'title' => 'This portfolio',
-            'slug' => 'this-portfolio',
-            'summary' => 'Laravel 13 + Filament admin, 100% test coverage, Dockerised, CI/CD to Laravel Cloud.',
-            'body' => "## Highlights\n\n- Test-driven with Pest, enforced 100% coverage\n- Architecture tests, Larastan and Rector in CI\n- Multi-stage Docker image (FrankenPHP + Octane)\n- GitHub Actions deploys to Laravel Cloud after green builds",
-            'tech_stack' => ['Laravel', 'Filament', 'Pest', 'Docker', 'GitHub Actions'],
-            'repository_url' => 'https://github.com/',
-            'is_featured' => true,
-            'published_at' => now(),
         ]);
     }
 }
