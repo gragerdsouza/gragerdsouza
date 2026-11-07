@@ -1,0 +1,50 @@
+name: Deploy
+
+# Deploys to Laravel Cloud only after CI has passed on main.
+# Setup (one-time):
+#   1. Laravel Cloud → your environment → Settings → Deployments: turn OFF "Push to deploy"
+#      and copy the Deploy hook URL.
+#   2. GitHub → Settings → Secrets and variables → Actions → new secret
+#      LARAVEL_CLOUD_DEPLOY_HOOK = <that URL>.
+#   3. (Optional) GitHub → Settings → Environments → "production": add required reviewers.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  laravel-cloud:
+    name: Laravel Cloud
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    environment:
+      name: production
+    steps:
+      - name: Check deploy hook is configured
+        env:
+          DEPLOY_HOOK: ${{ secrets.LARAVEL_CLOUD_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::Secret LARAVEL_CLOUD_DEPLOY_HOOK is not set. See the comments at the top of deploy.yml."
+            exit 1
+          fi
+
+      - name: Trigger deployment
+        env:
+          DEPLOY_HOOK: ${{ secrets.LARAVEL_CLOUD_DEPLOY_HOOK }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          curl --fail --silent --show-error --retry 3 -X POST "$DEPLOY_HOOK"
+          echo "Deployment triggered for ${SHA}" >> "$GITHUB_STEP_SUMMARY"

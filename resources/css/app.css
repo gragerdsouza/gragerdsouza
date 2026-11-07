@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --color-ink-100: #e6edf3;
+    --color-ink-200: #c9d4de;
+    --color-ink-300: #9aa7b4;
+    --color-ink-400: #75818e;
+    --color-ink-500: #4f5a66;
+    --color-ink-900: #121821;
+    --color-ink-950: #0b0f14;
+
+    --color-accent-200: #b9f6d8;
+    --color-accent-300: #7cecb6;
+    --color-accent-400: #3ddc97;
+}
+
+/* Rendered Markdown for project write-ups */
+.prose-portfolio {
+    @apply space-y-5 leading-relaxed text-ink-300;
+
+    & h2 { @apply mt-10 text-xl font-semibold text-white; }
+    & h3 { @apply mt-8 text-lg font-semibold text-white; }
+    & a { @apply text-accent-300 underline underline-offset-4 hover:text-accent-200; }
+    & ul { @apply list-disc space-y-2 pl-6; }
+    & ol { @apply list-decimal space-y-2 pl-6; }
+    & code { @apply rounded bg-white/5 px-1.5 py-0.5 font-mono text-sm text-ink-100; }
+    & pre { @apply overflow-x-auto rounded-lg border border-white/5 bg-ink-900 p-4; }
+    & pre code { @apply bg-transparent p-0; }
+    & blockquote { @apply border-l-2 border-accent-400 pl-4 italic; }
+}
+
+.hero-glow {
+    background: radial-gradient(ellipse at top, color-mix(in oklab, var(--color-accent-400) 14%, transparent), transparent 60%);
+}
