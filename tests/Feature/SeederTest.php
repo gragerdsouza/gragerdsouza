@@ -8,12 +8,14 @@ declare(strict_types=1);
  * @author Grager D'souza <gragerdsouza@gmail.com>
  */
 
+use App\Models\Certification;
 use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\User;
 use Database\Seeders\AdminUserSeeder;
+use Database\Seeders\CertificationSeeder;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\PortfolioSeeder;
 use Illuminate\Support\Facades\Hash;
@@ -62,4 +64,15 @@ it('seeds starter portfolio content once', function (): void {
         ->and(User::query()->where('is_admin', true)->count())->toBe(1);
 
     $this->get('/')->assertOk()->assertSee('Grager D&#039;souza', false);
+});
+
+it('seeds a curated set of LinkedIn certifications once', function (): void {
+    $this->seed(CertificationSeeder::class);
+    $this->seed(CertificationSeeder::class);
+
+    expect(Certification::query()->orderBy('name')->pluck('name')->all())->toBe([
+        'Amazon Web Services Cloud Practitioner',
+        'Fundamentals of Agile Project Management',
+        'Scrum Master Certification: Scrum Methodologies',
+    ])->and(Certification::query()->current()->count())->toBe(3);
 });

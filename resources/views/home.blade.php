@@ -72,10 +72,35 @@
         </section>
     @endif
 
+    {{-- Certifications --}}
+    @if ($certifications->isNotEmpty())
+        <section id="certifications" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
+            <x-section-heading eyebrow="04 · Certifications" title="Licences & certifications" />
+            <ul class="grid gap-4 sm:grid-cols-2">
+                @foreach ($certifications as $certification)
+                    <li class="rounded-xl border border-white/5 bg-ink-900/60 p-5">
+                        <h3 class="font-medium text-white">
+                            @if ($certification->credential_url)
+                                <a href="{{ $certification->credential_url }}" class="hover:text-accent-300" target="_blank" rel="noopener">{{ $certification->name }} ↗</a>
+                            @else
+                                {{ $certification->name }}
+                            @endif
+                        </h3>
+                        <p class="mt-1 text-sm text-ink-300">{{ $certification->issuer }}</p>
+                        <p class="mt-2 font-mono text-xs text-ink-400">{{ $certification->validity() }}</p>
+                    </li>
+                @endforeach
+            </ul>
+            @if ($profile->linkedInCertificationsUrl())
+                <a href="{{ $profile->linkedInCertificationsUrl() }}" class="mt-8 inline-block font-mono text-sm text-accent-300 hover:text-accent-200" target="_blank" rel="noopener">See all on LinkedIn ↗</a>
+            @endif
+        </section>
+    @endif
+
     {{-- Featured projects --}}
     @if ($projects->isNotEmpty())
         <section id="projects" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
-            <x-section-heading eyebrow="04 · Work" title="Featured projects" />
+            <x-section-heading eyebrow="05 · Work" title="Featured projects" />
             <div class="grid gap-6 md:grid-cols-2">
                 @foreach ($projects as $project)
                     <x-project-card :project="$project" />
@@ -87,7 +112,7 @@
 
     {{-- Contact --}}
     <section id="contact" class="scroll-mt-20 mx-auto max-w-5xl px-4 py-16 sm:px-6">
-        <x-section-heading eyebrow="05 · Contact" title="Let's build something" />
+        <x-section-heading eyebrow="06 · Contact" title="Let's build something" />
         <div class="grid gap-10 md:grid-cols-[1fr_1.4fr]">
             <div class="space-y-3 text-ink-300">
                 <p>Have a project, role or idea? Send a message — it lands straight in my inbox.</p>

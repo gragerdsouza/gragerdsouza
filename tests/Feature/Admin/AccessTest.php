@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @author Grager D'souza <gragerdsouza@gmail.com>
  */
 
+use App\Models\Certification;
 use App\Models\ContactMessage;
 use App\Models\Experience;
 use App\Models\Profile;
@@ -29,6 +30,9 @@ dataset('admin pages', [
     'experiences' => fn (): string => '/admin/experiences',
     'experience create' => fn (): string => '/admin/experiences/create',
     'experience edit' => fn (): string => '/admin/experiences/'.Experience::factory()->create()->id.'/edit',
+    'certifications' => fn (): string => '/admin/certifications',
+    'certification create' => fn (): string => '/admin/certifications/create',
+    'certification edit' => fn (): string => '/admin/certifications/'.Certification::factory()->create()->id.'/edit',
     'messages' => fn (): string => '/admin/contact-messages',
     'message view' => fn (): string => '/admin/contact-messages/'.ContactMessage::factory()->create()->id,
 ]);

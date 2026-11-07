@@ -60,6 +60,18 @@ class Profile extends Model
     }
 
     /**
+     * Link to the full certifications list on LinkedIn, if a LinkedIn profile is set.
+     *
+     * @return string|null The LinkedIn certifications URL, or null without a LinkedIn link.
+     */
+    public function linkedInCertificationsUrl(): ?string
+    {
+        $linkedIn = $this->social_links['linkedin'] ?? null;
+
+        return $linkedIn === null ? null : rtrim($linkedIn, '/').'/details/certifications/';
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string> Cast types keyed by attribute.

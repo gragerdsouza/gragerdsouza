@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Certification;
 use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
@@ -28,6 +29,7 @@ final class HomeController
             'profile' => Profile::current(),
             'skills' => Skill::query()->ordered()->get()->groupBy(fn (Skill $skill): string => $skill->category->getLabel()),
             'experiences' => Experience::query()->latestFirst()->get(),
+            'certifications' => Certification::query()->current()->latestFirst()->get(),
             'projects' => Project::query()->published()->featured()->ordered()->limit(6)->get(),
         ]);
     }

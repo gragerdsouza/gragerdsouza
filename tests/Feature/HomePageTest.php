@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Enums\SkillCategory;
+use App\Models\Certification;
 use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
@@ -58,6 +59,56 @@ it('shows the profile, stack, experience and featured projects', function (): vo
         ->assertSee('No Stack')
         ->assertDontSee('Not Featured')
         ->assertDontSee('Draft Featured');
+});
+
+it('lists current certifications with issuer, date and credential link', function (): void {
+    Certification::factory()->create([
+        'name' => 'AWS Cloud Practitioner',
+        'issuer' => 'Amazon Web Services (AWS)',
+        'issued_at' => '2025-02-01',
+        'credential_url' => 'https://www.credly.com/badges/xyz',
+    ]);
+    Certification::factory()->create(['name' => 'Scrum Master', 'credential_url' => null]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('id="certifications" class="scroll-mt-20', false)
+        ->assertSeeInOrder(['AWS Cloud Practitioner', 'Amazon Web Services (AWS)', 'Issued Feb 2025'])
+        ->assertSee('https://www.credly.com/badges/xyz')
+        ->assertSee('Scrum Master');
+});
+
+it('never shows expired certifications on the public site', function (): void {
+    Certification::factory()->create(['name' => 'Still valid']);
+    Certification::factory()->expired()->create(['name' => 'Google Analytics for Beginners']);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('Still valid')
+        ->assertDontSee('Google Analytics for Beginners');
+});
+
+it('links to the full list on LinkedIn when a LinkedIn profile is set', function (): void {
+    Certification::factory()->create();
+    Profile::factory()->create(['social_links' => ['linkedin' => 'https://www.linkedin.com/in/me/']]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('href="https://www.linkedin.com/in/me/details/certifications/"', false)
+        ->assertSee('See all on LinkedIn');
+});
+
+it('omits the LinkedIn link when no LinkedIn profile is set', function (): void {
+    Certification::factory()->create();
+    Profile::factory()->create(['social_links' => ['github' => 'https://github.com/me']]);
+
+    $this->get('/')->assertOk()->assertDontSee('See all on LinkedIn');
+});
+
+it('hides the certifications section when none are current', function (): void {
+    Certification::factory()->expired()->create();
+
+    $this->get('/')->assertOk()->assertDontSee('id="certifications"', false);
 });
 
 it('sets SEO meta tags', function (): void {
