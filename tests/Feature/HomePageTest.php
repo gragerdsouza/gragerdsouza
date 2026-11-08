@@ -123,3 +123,11 @@ it('sets SEO meta tags', function (): void {
 it('exposes the health check endpoint', function (): void {
     $this->get('/up')->assertOk();
 });
+
+it('never renders a javascript: social link', function (): void {
+    Profile::factory()->create(['social_links' => ['github' => 'https://github.com/me', 'evil' => 'javascript:alert(1)']]);
+
+    $this->get('/')
+        ->assertSee('href="https://github.com/me"', false)
+        ->assertDontSee('javascript:alert(1)', false);
+});

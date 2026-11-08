@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Migration: add authenticator-app (TOTP) 2FA columns to the users table.
+ *
+ * @author Grager D'souza <gragerdsouza@gmail.com>
+ */
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void Nothing is returned.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table): void {
+            // Both are stored encrypted with APP_KEY (see the User model casts).
+            $table->text('app_authentication_secret')->nullable()->after('password');
+            $table->text('app_authentication_recovery_codes')->nullable()->after('app_authentication_secret');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void Nothing is returned.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table): void {
+            $table->dropColumn(['app_authentication_secret', 'app_authentication_recovery_codes']);
+        });
+    }
+};

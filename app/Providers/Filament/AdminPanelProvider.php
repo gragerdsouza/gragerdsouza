@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\RestrictAdminAccess;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -22,7 +24,10 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
- * Configures the Filament admin panel mounted at /admin.
+ * Configures the Filament admin panel (mounted at /admin unless ADMIN_PATH says otherwise).
+ *
+ * Hardening: optional IP allowlist (404 for everyone else), authenticator-app 2FA with
+ * recovery codes (required by default), and Filament's built-in login throttling.
  *
  * @author Grager D'souza <gragerdsouza@gmail.com>
  */
@@ -40,10 +45,14 @@ final class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path(config()->string('portfolio.admin.path'))
             ->login()
             ->passwordReset()
             ->profile()
+            ->multiFactorAuthentication(
+                [AppAuthentication::make()->recoverable()],
+                isRequired: config()->boolean('portfolio.admin.require_mfa'),
+            )
             ->brandName('Portfolio admin')
             ->colors([
                 'primary' => Color::Emerald,
@@ -64,6 +73,8 @@ final class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
             ])
+            // Runs first, on page loads and Livewire updates alike.
+            ->middleware([RestrictAdminAccess::class], isPersistent: true)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

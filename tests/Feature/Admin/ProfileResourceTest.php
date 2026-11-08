@@ -62,3 +62,27 @@ it('validates the profile form', function (): void {
         ->call('create')
         ->assertHasFormErrors(['name' => 'required', 'email' => 'email', 'resume_url' => 'url', 'headline' => 'required', 'bio' => 'required']);
 });
+
+it('rejects social links that are not http(s) URLs', function (string $url): void {
+    Livewire::test(CreateProfile::class)
+        ->fillForm([
+            'name' => 'Grager',
+            'headline' => 'Full-stack developer',
+            'bio' => 'I test first.',
+            'email' => 'me@example.com',
+            'social_links' => ['evil' => $url],
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['social_links']);
+})->with(['javascript:alert(1)', 'ftp://example.com', 'not a url']);
+
+it('rejects an unsafe social link added on the edit form', function (): void {
+    $profile = Profile::factory()->create();
+
+    Livewire::test(EditProfile::class, ['record' => $profile->getRouteKey()])
+        ->fillForm(['social_links' => [['key' => 'evil', 'value' => 'javascript:alert(1)']]])
+        ->call('save')
+        ->assertHasFormErrors(['social_links']);
+
+    expect($profile->fresh()?->social_links)->toBe(['github' => 'https://github.com/example']);
+});

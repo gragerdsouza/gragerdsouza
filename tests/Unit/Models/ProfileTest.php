@@ -43,3 +43,21 @@ it('casts its attributes', function (): void {
     expect($profile->fresh()?->social_links)->toBe(['github' => 'https://github.com/me'])
         ->and($profile->fresh()?->available_for_work)->toBeTrue();
 });
+
+it('only exposes http(s) social links, so stored javascript: links never render', function (): void {
+    $profile = Profile::factory()->make(['social_links' => [
+        'github' => 'https://github.com/me',
+        'blog' => 'HTTP://blog.example.com',
+        'evil' => 'javascript:alert(1)',
+        'data' => 'data:text/html,<script>alert(1)</script>',
+    ]]);
+
+    expect($profile->socialLinks())->toBe([
+        'github' => 'https://github.com/me',
+        'blog' => 'HTTP://blog.example.com',
+    ]);
+});
+
+it('ignores an unsafe LinkedIn link for the certifications URL', function (): void {
+    expect(Profile::factory()->make(['social_links' => ['linkedin' => 'javascript:alert(1)']])->linkedInCertificationsUrl())->toBeNull();
+});

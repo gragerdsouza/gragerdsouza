@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\User;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -37,6 +38,8 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'is_admin' => false,
+            'app_authentication_secret' => null,
+            'app_authentication_recovery_codes' => null,
         ];
     }
 
@@ -61,6 +64,18 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'is_admin' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has set up authenticator-app two-factor authentication.
+     *
+     * @return static The factory with this state applied.
+     */
+    public function withAppAuthentication(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'app_authentication_secret' => AppAuthentication::make()->generateSecret(),
         ]);
     }
 }

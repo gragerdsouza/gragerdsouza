@@ -60,13 +60,27 @@ class Profile extends Model
     }
 
     /**
+     * Social links that are safe to render: only http(s) URLs, so a stored
+     * "javascript:" or "data:" value can never become a clickable link.
+     *
+     * @return array<string, string> URLs keyed by network name.
+     */
+    public function socialLinks(): array
+    {
+        return array_filter(
+            $this->social_links ?? [],
+            static fn (string $url): bool => preg_match('#^https?://#i', $url) === 1,
+        );
+    }
+
+    /**
      * Link to the full certifications list on LinkedIn, if a LinkedIn profile is set.
      *
      * @return string|null The LinkedIn certifications URL, or null without a LinkedIn link.
      */
     public function linkedInCertificationsUrl(): ?string
     {
-        $linkedIn = $this->social_links['linkedin'] ?? null;
+        $linkedIn = $this->socialLinks()['linkedin'] ?? null;
 
         return $linkedIn === null ? null : rtrim($linkedIn, '/').'/details/certifications/';
     }

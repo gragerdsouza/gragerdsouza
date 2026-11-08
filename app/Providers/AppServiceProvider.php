@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 /**
- * Application bootstrapping: strict models, dates, HTTPS and rate limits.
+ * Application bootstrapping: strict models, dates, HTTPS, password policy and rate limits.
  *
  * @author Grager D'souza <gragerdsouza@gmail.com>
  */
@@ -33,6 +34,14 @@ final class AppServiceProvider extends ServiceProvider
         DB::prohibitDestructiveCommands($this->app->isProduction());
 
         URL::forceHttps($this->app->isProduction());
+
+        Password::defaults(fn (): Password => $this->app->isProduction()
+            ? Password::min(12)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
+            : Password::min(8));
+
+        RateLimiter::for('public', fn (Request $request): Limit => Limit::perMinute(
+            config()->integer('portfolio.public.per_minute'),
+        )->by((string) $request->ip()));
 
         RateLimiter::for('contact', fn (Request $request): Limit => Limit::perMinute(
             config()->integer('portfolio.contact.per_minute'),

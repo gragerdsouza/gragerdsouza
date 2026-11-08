@@ -48,6 +48,9 @@ Two supported targets:
    | `APP_ENV` / `APP_DEBUG` | `production` / `false` |
    | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | your login (use Cloud **Secrets** for the password) |
    | `CONTACT_NOTIFY_EMAIL` | where contact-form mail goes |
+   | `ADMIN_PATH` | optional non-obvious admin URL prefix (default `admin`) |
+   | `ADMIN_ALLOWED_IPS` | optional comma-separated IPs/CIDRs allowed into the admin; others get 404 |
+   | `ADMIN_REQUIRE_MFA` | leave unset (defaults to `true`): the admin must use an authenticator app |
    | `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION` | `redis` (or `database`) |
    | `MAIL_*` | your SMTP provider, or attach Resend in Cloud |
 
@@ -123,6 +126,29 @@ docker exec portfolio php artisan db:seed --force
 - Works the same on Fly.io, Render, Railway, ECS, Cloud Run or Kubernetes.
 
 Build locally: `make build-prod` → `portfolio:local`.
+
+---
+
+## Security checklist
+
+Built in (covered by tests):
+
+- **Admin**: password + authenticator-app 2FA with recovery codes (required unless `ADMIN_REQUIRE_MFA=false`),
+  Filament login throttling, optional IP allowlist (`ADMIN_ALLOWED_IPS`, 404 for everyone else), optional
+  custom path (`ADMIN_PATH`). In production, passwords need 12+ chars with mixed case, numbers and symbols,
+  and are rejected if they appear in a known data breach (Have I Been Pwned, k-anonymity).
+- **Browser**: strict nonce-based Content-Security-Policy on public pages, HSTS (2 years), `nosniff`,
+  frame and opener isolation, and a locked-down Permissions-Policy (`app/Http/Middleware/SecurityHeaders.php`).
+- **Input**: rate limits on every public page (`PUBLIC_RATE_LIMIT`) and the contact form, honeypot,
+  Markdown rendered with raw HTML stripped, and only `http(s)` links accepted and rendered.
+- **Sessions**: encrypted, `HttpOnly`, `SameSite=Lax`, `Secure` in production.
+
+After the first deploy with 2FA, sign in, scan the QR code with your authenticator app and **store the
+recovery codes somewhere safe** (password manager). Changing `ADMIN_*` settings needs a redeploy (routes are cached).
+
+Lost your phone and recovery codes? From a Cloud command / `php artisan tinker`:
+`App\Models\User::where('email', 'you@example.com')->update(['app_authentication_secret' => null, 'app_authentication_recovery_codes' => null]);`
+then sign in and set up 2FA again.
 
 ---
 

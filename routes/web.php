@@ -14,13 +14,15 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
+Route::middleware('throttle:public')->group(function (): void {
+    Route::get('/', HomeController::class)->name('home');
 
-Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
-Route::post('/contact', [ContactController::class, 'store'])
-    ->middleware('throttle:contact')
-    ->name('contact.store');
+    Route::post('/contact', [ContactController::class, 'store'])
+        ->middleware('throttle:contact')
+        ->name('contact.store');
 
-Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+    Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+});

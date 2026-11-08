@@ -50,7 +50,7 @@
     <footer class="border-t border-white/5">
         <div class="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-ink-400 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p>&copy; {{ now()->year }} {{ $profile->name }}. Built with Laravel, tested with Pest, shipped by CI.</p>
-            <x-social-links :links="$profile->social_links ?? []" />
+            <x-social-links :links="$profile->socialLinks()" />
         </div>
     </footer>
 </body>
