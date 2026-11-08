@@ -15,16 +15,12 @@ Two supported targets:
 
 1. **Push the repo to GitHub.**
 2. **Create the application** in [Laravel Cloud](https://cloud.laravel.com) → *New application* → pick the repo and a region.
-   Or use the [Cloud CLI](https://github.com/laravel/cloud-cli), installed **globally**. It is a Laravel app that
-   registers the `App\` namespace, so it must not be a project dependency:
-   ```bash
-   composer global require laravel/cloud-cli
-   cloud auth -n
-   cloud ship -h      # review the options, then run `cloud ship -n …`
-   ```
+   Or use the Cloud CLI (see *Laravel Cloud CLI* below): `make cloud ARGS="ship -h"`.
 3. **Environment → Settings → General**: PHP **8.5** (switch to 8.6 when Cloud offers it).
 4. **Resources**: attach
-   - a **PostgreSQL** database (connection vars are injected automatically),
+   - a **PostgreSQL** database (connection vars are injected automatically). **Required**: Cloud does
+     not support SQLite (the filesystem is wiped on every deploy and wake-up), and without a database
+     every page returns 500. Don't set `DB_*` variables yourself; they override the injected ones.
    - a **Valkey/Redis** cache (used for cache, sessions and the queue),
    - an **Object Storage bucket**, visibility **public**, disk name **`public`** (profile avatars; the Cloud filesystem is ephemeral).
 5. **Build commands**
@@ -88,12 +84,34 @@ push to main ─▶ CI (Pint · Rector · Larastan · Pest 100% · assets · doc
 - Your site is at `https://<app>-<env>.laravel.cloud` after the first deploy. Add a custom domain under *Domains*
   (or `cloud domain:create … -n && cloud domain:verify -n`); SSL is automatic.
 
-### Useful CLI commands
+### Laravel Cloud CLI
+
+The [Cloud CLI](https://github.com/laravel/cloud-cli) needs PHP 8.3+, so it runs in Docker. It is itself a
+Laravel app (it registers the `App\` namespace), so it is **not** a project dependency: `make` installs it
+into `~/.config/cloud/cli` on your machine, next to the API token it stores. Nothing is added to the repo.
+
+**1. Create an API token** in Laravel Cloud → **Organization settings → API tokens → Create API Token**.
+Give it a name (e.g. `cli-macbook`), pick an expiry (6 months is a good balance) and copy it; it is shown once.
+Optionally scope it to this application and only the permissions you need.
+
+**2. Save it** (typed input is hidden; the token never lands in shell history or the repo):
 
 ```bash
-cloud deploy <app> production -n --open
-cloud deploy:monitor -n
-cloud tinker production --code='echo App\Models\User::count();' -n
+make cloud-login        # installs the CLI on first use, then asks for the token
+```
+
+The token is stored in `~/.config/cloud/config.json`. Revoke it in the same Cloud screen if it leaks;
+never commit it or paste it into chats or issues. For CI, use a separate, tightly scoped token.
+
+**3. Use it**
+
+```bash
+make cloud ARGS="application:list --json -n"
+make cloud ARGS="deploy gragerdsouza production -n"
+make cloud ARGS="deploy:monitor -n"
+make cloud ARGS="command:run production --cmd='php artisan db:seed --force' -n"
+make cloud ARGS="tinker production --code='echo App\Models\User::count();' -n"
+make cloud-install      # update the CLI
 ```
 
 ---
