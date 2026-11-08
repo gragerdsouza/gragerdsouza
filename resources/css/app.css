@@ -41,13 +41,13 @@
 
 /* Main navigation */
 .nav-link {
-    @apply block whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors hover:bg-white/5 hover:text-white;
+    @apply block whitespace-nowrap rounded-md px-3 py-2.5 text-base transition-colors hover:bg-white/5 hover:text-white sm:px-2.5 sm:py-1.5 sm:text-sm;
 
     &[aria-current] { @apply bg-white/5 text-white; }
 }
 
 .nav-cta {
-    @apply block whitespace-nowrap rounded-md bg-accent-400 px-3 py-1.5 font-medium text-ink-950 transition hover:bg-accent-300;
+    @apply block whitespace-nowrap rounded-md bg-accent-400 px-3 py-2.5 text-center text-base font-medium text-ink-950 transition hover:bg-accent-300 sm:py-1.5 sm:text-sm;
 
     &[aria-current] { @apply ring-2 ring-accent-200 ring-offset-2 ring-offset-ink-950; }
 }

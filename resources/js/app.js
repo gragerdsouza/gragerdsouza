@@ -90,3 +90,42 @@ if (sections.length > 0) {
     pinnedId = location.hash.slice(1) || null;
     update();
 }
+
+/**
+ * Small-screen menu: the hamburger button shows and hides #site-menu.
+ *
+ * Closes on a link tap, on Escape (returning focus to the button), on a tap outside
+ * the header, and when the viewport grows to the desktop layout.
+ */
+const menuButton = document.querySelector('[data-menu-toggle]');
+const menu = menuButton && document.getElementById(menuButton.getAttribute('aria-controls'));
+
+/**
+ * Open or close the small-screen menu.
+ *
+ * @param {boolean} open True to show the menu.
+ * @returns {void}
+ */
+function setMenuOpen(open) {
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    menu.toggleAttribute('data-open', open);
+}
+
+if (menuButton && menu) {
+    menuButton.addEventListener('click', () => setMenuOpen(menuButton.getAttribute('aria-expanded') !== 'true'));
+    menu.addEventListener('click', (event) => event.target.closest('a') && setMenuOpen(false));
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && menu.hasAttribute('data-open')) {
+            setMenuOpen(false);
+            menuButton.focus();
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (menu.hasAttribute('data-open') && !event.target.closest('header')) setMenuOpen(false);
+    });
+
+    window.matchMedia('(min-width: 40rem)').addEventListener('change', (query) => query.matches && setMenuOpen(false));
+}
