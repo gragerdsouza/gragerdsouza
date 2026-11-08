@@ -10,7 +10,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LlmsTxtController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RobotsTxtController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +27,6 @@ Route::middleware('throttle:public')->group(function (): void {
         ->name('contact.store');
 
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+    Route::get('/llms.txt', LlmsTxtController::class)->name('llms');
+    Route::get('/robots.txt', RobotsTxtController::class)->name('robots');
 });

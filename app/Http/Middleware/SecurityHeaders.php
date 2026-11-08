@@ -54,6 +54,11 @@ final class SecurityHeaders
         $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy($request, $nonce));
         $response->headers->remove('X-Powered-By');
 
+        if ($this->isAdminArea($request)) {
+            // Keep the admin out of search results without listing its path in robots.txt.
+            $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+        }
+
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
         }
@@ -71,9 +76,7 @@ final class SecurityHeaders
      */
     private function contentSecurityPolicy(Request $request, string $nonce): string
     {
-        $adminPath = config()->string('portfolio.admin.path');
-
-        $policy = $request->is($adminPath, $adminPath.'/*', 'livewire*', 'up')
+        $policy = $this->isAdminArea($request) || $request->is('livewire*', 'up')
             ? self::BASELINE_POLICY
             : $this->strictPolicy($nonce);
 
@@ -86,6 +89,20 @@ final class SecurityHeaders
             array_keys($policy),
             $policy,
         ));
+    }
+
+    /**
+     * Whether the request targets the Filament admin panel.
+     *
+     * @param Request $request The incoming HTTP request.
+     *
+     * @return bool True for admin panel URLs.
+     */
+    private function isAdminArea(Request $request): bool
+    {
+        $adminPath = config()->string('portfolio.admin.path');
+
+        return $request->is($adminPath, $adminPath.'/*');
     }
 
     /**
