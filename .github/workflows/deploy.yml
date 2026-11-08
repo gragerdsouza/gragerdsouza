@@ -5,7 +5,8 @@ name: Deploy
 # ON/OFF SWITCH: deploys are DISABLED until the repository variable
 #   LARAVEL_CLOUD_DEPLOY_ENABLED = true
 # is set (GitHub → Settings → Secrets and variables → Actions → Variables tab).
-# While disabled, this job shows as "skipped" — CI is unaffected.
+# While disabled, the deploy job shows as "skipped" and the "Check deploy switch" job says why.
+# CI is unaffected.
 #
 # Setup (one-time, when you are ready):
 #   1. Laravel Cloud → your environment → Settings → Deployments: turn OFF "Push to deploy"
@@ -33,14 +34,49 @@ permissions:
   contents: read
 
 jobs:
+  # Decides whether to deploy and always says why, so a skipped deploy is never a mystery.
+  gate:
+    name: Check deploy switch
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - id: check
+        env:
+          ENABLED: ${{ vars.LARAVEL_CLOUD_DEPLOY_ENABLED }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          CI_EVENT: ${{ github.event.workflow_run.event }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          enabled=$(printf '%s' "$ENABLED" | tr -d '[:space:]"' | tr '[:upper:]' '[:lower:]')
+          if [ "$enabled" != "true" ]; then
+            reason="LARAVEL_CLOUD_DEPLOY_ENABLED is '${ENABLED:-<not set or not visible>}'. It must be a *repository* variable (Settings > Secrets and variables > Actions > Variables) set to true."
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ "$REF" != "refs/heads/main" ]; then
+            reason="Manual deploys only run from main (this run used $REF)."
+          elif [ "$EVENT" = "workflow_run" ] && [ "$CI_CONCLUSION" != "success" ]; then
+            reason="CI did not pass for ${SHA} (conclusion: ${CI_CONCLUSION})."
+          elif [ "$EVENT" = "workflow_run" ] && [ "$CI_EVENT" != "push" ]; then
+            reason="CI ran for a ${CI_EVENT}, not a push to main."
+          else
+            reason=""
+          fi
+
+          if [ -n "$reason" ]; then
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deploy skipped::${reason}"
+            echo "Deploy skipped: ${reason}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deploying::${SHA} via ${EVENT}"
+          fi
+
   laravel-cloud:
     name: Laravel Cloud
+    needs: gate
     runs-on: ubuntu-latest
-    if: >-
-      vars.LARAVEL_CLOUD_DEPLOY_ENABLED == 'true' && (
-        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-        (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
-      )
+    if: needs.gate.outputs.deploy == 'true'
     environment:
       name: production
     steps:
