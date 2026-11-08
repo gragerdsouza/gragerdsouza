@@ -15,6 +15,8 @@ name: Deploy
 #   3. GitHub → Settings → Secrets and variables → Actions → Variables tab → new variable
 #      LARAVEL_CLOUD_DEPLOY_ENABLED = true.  (Set it to false, or delete it, to pause deploys.)
 #   4. (Optional) GitHub → Settings → Environments → "production": add required reviewers.
+#
+# Manual runs (Actions → Deploy → Run workflow) only deploy from main.
 
 on:
   workflow_run:
@@ -36,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       vars.LARAVEL_CLOUD_DEPLOY_ENABLED == 'true' && (
-        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
         (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
       )
     environment:
@@ -55,6 +57,8 @@ jobs:
         env:
           DEPLOY_HOOK: ${{ secrets.LARAVEL_CLOUD_DEPLOY_HOOK }}
           SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        # commit_hash pins the deploy to the exact commit CI tested, not whatever is newest on main.
         run: |
-          curl --fail --silent --show-error --retry 3 -X POST "$DEPLOY_HOOK"
+          case "$DEPLOY_HOOK" in *\?*) SEP='&' ;; *) SEP='?' ;; esac
+          curl --fail --silent --show-error --retry 3 -X POST "${DEPLOY_HOOK}${SEP}commit_hash=${SHA}"
           echo "Deployment triggered for ${SHA}" >> "$GITHUB_STEP_SUMMARY"
