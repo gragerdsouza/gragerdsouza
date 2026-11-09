@@ -170,7 +170,7 @@ flowchart LR
     dev[git push / PR] --> ci
 
     subgraph ci["CI — .github/workflows/ci.yml"]
-        q[quality<br/>Pint · Rector · Larastan max · composer audit]
+        q[quality<br/>Pint · Rector · Larastan max · composer audit · vet]
         t1[tests PHP 8.5 sqlite<br/>Pest --parallel --coverage --min=100]
         t2[tests PHP 8.5 pgsql]
         t3[tests PHP 8.6<br/>experimental]

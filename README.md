@@ -142,7 +142,7 @@ Thin final controllers, single-purpose actions, and models that know nothing abo
 
 | Workflow | Trigger | Does |
 |---|---|---|
-| `ci.yml` | push, PR | Pint · Rector · Larastan · `composer audit` → Pest on PHP 8.5 (SQLite, with 100% coverage gate) and PostgreSQL, plus PHP 8.6 (experimental) → `npm ci && build && audit` → Docker `prod` build (pushed to GHCR on `main`) |
+| `ci.yml` | push, PR | Pint · Rector · Larastan · `composer audit` · Laravel Vet → Pest on PHP 8.5 (SQLite, with 100% coverage gate) and PostgreSQL, plus PHP 8.6 (experimental) → `npm ci && build && audit` → Docker `prod` build (pushed to GHCR on `main`) |
 | `deploy.yml` | CI green on `main`, or manual. **Off until** repo variable `LARAVEL_CLOUD_DEPLOY_ENABLED=true` | POSTs the Laravel Cloud deploy hook |
 | Dependabot | weekly | Composer, npm, Actions, Docker base images |
 

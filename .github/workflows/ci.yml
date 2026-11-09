@@ -52,6 +52,9 @@ jobs:
       - name: Dependency audit
         run: composer audit
 
+      - name: Vet (every package matches vet.json)
+        run: vendor/bin/vet --no-interaction
+
   tests:
     name: Pest · PHP ${{ matrix.php }} · ${{ matrix.db }}
     runs-on: ubuntu-latest

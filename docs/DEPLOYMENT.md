@@ -159,7 +159,20 @@ Built in (covered by tests):
   frame and opener isolation, and a locked-down Permissions-Policy (`app/Http/Middleware/SecurityHeaders.php`).
 - **Input**: rate limits on every public page (`PUBLIC_RATE_LIMIT`) and the contact form, honeypot,
   Markdown rendered with raw HTML stripped, and only `http(s)` links accepted and rendered.
-- **Sessions**: encrypted, `HttpOnly`, `SameSite=Lax`, `Secure` in production.
+- **Sessions**: encrypted, `HttpOnly`, `SameSite=Lax`, `Secure` in production. `robots.txt`, `sitemap.xml`
+  and `llms.txt` start no session at all and are HTTP-cacheable (ETag, 1 hour).
+- **Dependencies**: `composer audit` and `npm audit` in CI, plus [Laravel Vet](https://github.com/laravel/vet):
+  `vet.json` records the exact bytes of every Composer package we trust, and CI fails if `vendor/` holds anything else.
+
+### Updating Composer packages (Laravel Vet)
+
+1. `docker compose run --rm app composer update` — Vet lists every package whose code changed.
+2. `docker compose run --rm -it app vendor/bin/vet` — read the diffs (or hand them to your coding agent for a
+   PASS / FAIL read) and tick the packages you trust. This updates `vet.json`.
+3. Commit `composer.lock` **and** `vet.json` together. CI runs `vendor/bin/vet` and fails on anything untrusted.
+
+There is no minimum release age for now: it would hold back fresh security releases (e.g. Symfony patches).
+Turn it on later by adding `"minimum-release-age": 7` and `"minimum-release-age-exclude": ["laravel/*"]` to `vet.json`.
 
 After the first deploy with 2FA, sign in, scan the QR code with your authenticator app and **store the
 recovery codes somewhere safe** (password manager). Changing `ADMIN_*` settings needs a redeploy (routes are cached).
