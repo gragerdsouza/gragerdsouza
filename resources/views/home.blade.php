@@ -5,7 +5,7 @@
         <div class="relative mx-auto max-w-5xl px-4 pb-20 pt-24 sm:px-6 sm:pt-32">
             @if ($profile->available_for_work)
                 <p class="inline-flex items-center gap-2 rounded-full border border-accent-400/30 bg-accent-400/10 px-3 py-1 font-mono text-xs text-accent-300">
-                    <span class="size-1.5 animate-pulse rounded-full bg-accent-400"></span> Available for new work
+                    <span class="size-1.5 motion-safe:animate-pulse rounded-full bg-accent-400"></span> Available for new work
                 </p>
             @endif
             <h1 class="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-6xl">{{ $profile->name }}</h1>
@@ -31,7 +31,7 @@
                 {!! nl2br(e($profile->bio)) !!}
             </div>
             @if ($profile->avatarUrl())
-                <img src="{{ $profile->avatarUrl() }}" alt="{{ $profile->name }}" class="size-40 rounded-2xl object-cover ring-1 ring-white/10">
+                <img src="{{ $profile->avatarUrl() }}" alt="{{ $profile->name }}" width="160" height="160" decoding="async" class="size-40 rounded-2xl object-cover ring-1 ring-white/10">
             @endif
         </div>
     </section>

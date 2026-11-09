@@ -20,34 +20,40 @@
     --color-accent-400: #3ddc97;
 }
 
-/* Rendered Markdown for project write-ups */
-.prose-portfolio {
-    @apply space-y-5 leading-relaxed text-ink-300;
+/*
+ * Component classes live in the components layer, so utilities on the same element
+ * (e.g. `nav-link px-4`) still win, as they would in Tailwind's own cascade.
+ */
+@layer components {
+    /* Rendered Markdown for project write-ups */
+    .prose-portfolio {
+        @apply space-y-5 leading-relaxed text-ink-300;
 
-    & h2 { @apply mt-10 text-xl font-semibold text-white; }
-    & h3 { @apply mt-8 text-lg font-semibold text-white; }
-    & a { @apply text-accent-300 underline underline-offset-4 hover:text-accent-200; }
-    & ul { @apply list-disc space-y-2 pl-6; }
-    & ol { @apply list-decimal space-y-2 pl-6; }
-    & code { @apply rounded bg-white/5 px-1.5 py-0.5 font-mono text-sm text-ink-100; }
-    & pre { @apply overflow-x-auto rounded-lg border border-white/5 bg-ink-900 p-4; }
-    & pre code { @apply bg-transparent p-0; }
-    & blockquote { @apply border-l-2 border-accent-400 pl-4 italic; }
-}
+        & h2 { @apply mt-10 text-xl font-semibold text-white; }
+        & h3 { @apply mt-8 text-lg font-semibold text-white; }
+        & a { @apply text-accent-300 underline underline-offset-4 hover:text-accent-200; }
+        & ul { @apply list-disc space-y-2 pl-6; }
+        & ol { @apply list-decimal space-y-2 pl-6; }
+        & code { @apply rounded bg-white/5 px-1.5 py-0.5 font-mono text-sm text-ink-100; }
+        & pre { @apply overflow-x-auto rounded-lg border border-white/5 bg-ink-900 p-4; }
+        & pre code { @apply bg-transparent p-0; }
+        & blockquote { @apply border-l-2 border-accent-400 pl-4 italic; }
+    }
 
-.hero-glow {
-    background: radial-gradient(ellipse at top, color-mix(in oklab, var(--color-accent-400) 14%, transparent), transparent 60%);
-}
+    .hero-glow {
+        background: radial-gradient(ellipse at top, color-mix(in oklab, var(--color-accent-400) 14%, transparent), transparent 60%);
+    }
 
-/* Main navigation */
-.nav-link {
-    @apply block whitespace-nowrap rounded-md px-3 py-2.5 text-base transition-colors hover:bg-white/5 hover:text-white sm:px-2.5 sm:py-1.5 sm:text-sm;
+    /* Main navigation */
+    .nav-link {
+        @apply block whitespace-nowrap rounded-md px-3 py-2.5 text-base transition-colors hover:bg-white/5 hover:text-white sm:px-2.5 sm:py-1.5 sm:text-sm;
 
-    &[aria-current] { @apply bg-white/5 text-white; }
-}
+        &[aria-current] { @apply bg-white/5 text-white; }
+    }
 
-.nav-cta {
-    @apply block whitespace-nowrap rounded-md bg-accent-400 px-3 py-2.5 text-center text-base font-medium text-ink-950 transition hover:bg-accent-300 sm:py-1.5 sm:text-sm;
+    .nav-cta {
+        @apply block whitespace-nowrap rounded-md bg-accent-400 px-3 py-2.5 text-center text-base font-medium text-ink-950 transition hover:bg-accent-300 sm:py-1.5 sm:text-sm;
 
-    &[aria-current] { @apply ring-2 ring-accent-200 ring-offset-2 ring-offset-ink-950; }
+        &[aria-current] { @apply ring-2 ring-accent-200 ring-offset-2 ring-offset-ink-950; }
+    }
 }

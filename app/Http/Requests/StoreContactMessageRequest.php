@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Email;
 use Override;
 
 /**
@@ -17,13 +19,14 @@ final class StoreContactMessageRequest extends FormRequest
     /**
      * The validation rules for the request.
      *
-     * @return array<string, list<string>> Validation rules keyed by field.
+     * @return array<string, list<string|Email>> Validation rules keyed by field.
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'string', 'email', 'max:255'],
+            // Strict RFC (no quoted local parts etc.) and no look-alike Unicode domains.
+            'email' => ['required', 'string', 'max:255', Rule::email()->rfcCompliant(strict: true)->preventSpoofing()],
             'subject' => ['nullable', 'string', 'max:160'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             // Honeypot: browsers submit it empty (→ null); bots tend to fill it.

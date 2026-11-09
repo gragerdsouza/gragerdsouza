@@ -95,6 +95,8 @@ it('validates input', function (array $input, string $field): void {
     'long name' => [['name' => str_repeat('a', 121)], 'name'],
     'missing email' => [['email' => ''], 'email'],
     'invalid email' => [['email' => 'not-an-email'], 'email'],
+    'email with RFC warnings' => [['email' => '"ada"@example.com'], 'email'],
+    'spoofed email (Cyrillic homoglyph)' => [['email' => 'ada@exаmple.com'], 'email'],
     'long subject' => [['subject' => str_repeat('a', 161)], 'subject'],
     'short message' => [['message' => 'hi'], 'message'],
     'long message' => [['message' => str_repeat('a', 5001)], 'message'],
