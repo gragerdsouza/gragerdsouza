@@ -39,7 +39,17 @@ class Profile extends Model
      */
     public static function current(): self
     {
-        return self::query()->oldest('id')->first() ?? new self([
+        return self::query()->oldest('id')->first() ?? self::placeholder();
+    }
+
+    /**
+     * An unsaved profile built from config alone, for pages that must render without the database.
+     *
+     * @return self The placeholder profile.
+     */
+    public static function placeholder(): self
+    {
+        return new self([
             'name' => config()->string('app.name'),
             'headline' => 'Full-stack developer',
             'bio' => 'Profile coming soon.',
